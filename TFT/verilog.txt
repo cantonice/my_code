@@ -1,0 +1,344 @@
+// VerilogA for tft, ver, veriloga
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module ver(drain, gate, source);
+inout drain, gate, source;
+electrical drain, gate, source;
+
+//****** 标准化处理相关参数******//
+parameter real vgs_mean = 10.48288651;
+parameter real vgs_std = 7.76789725;
+
+parameter real vds_mean = 8.35886953;
+parameter real vds_std = 6.90964793;
+
+
+//****** Weights and biases of the first hidden layer******//
+//****** 结构为3-15-8-1的神经网络的相应代码******//
+//*******layer1,weight为3*15 *******
+parameter real w10101=-1.289649248123169;
+parameter real w10102=2.3686633110046387;
+parameter real w10103=0.2538842558860779;
+parameter real w10104=-0.3543987274169922;
+parameter real w10105=-0.8065534234046936;
+parameter real w10106=-0.036628562957048416;
+parameter real w10107=-0.46323639154434204;
+parameter real w10108=1.281946063041687;
+parameter real w10109=0.8808137774467468;
+parameter real w101010=1.0348399877548218;
+parameter real w101011=-0.22485965490341187;
+parameter real w101012=1.2421256303787231;
+parameter real w101013=2.806668758392334;
+parameter real w101014=-0.6678099632263184;
+parameter real w101015=-2.691678762435913;
+
+parameter real w10201=0.034115131944417953;
+parameter real w10202=-0.6964545249938965;
+parameter real w10203=-3.860656499862671;
+parameter real w10204=1.953953504562378;
+parameter real w10205=0.12719358503818512;
+parameter real w10206=-0.24386797845363617;
+parameter real w10207=-0.4642367660999298;
+parameter real w10208=-0.7961187958717346;
+parameter real w10209=-0.5012930035591125;
+parameter real w102010=0.5510947108268738;
+parameter real w102011=0.2717454433441162;
+parameter real w102012=-0.09186141937971115;
+parameter real w102013=-2.597193717956543;
+parameter real w102014=-1.025948166847229;
+parameter real w102015=0.028315424919128418;
+
+parameter real w10301=-0.05411520227789879;
+parameter real w10302=-0.10137045383453369;
+parameter real w10303=0.07436733692884445;
+parameter real w10304=-0.5883061289787292;
+parameter real w10305=0.17636634409427643;
+parameter real w10306=-3.0259642601013184;
+parameter real w10307=0.2205643504858017;
+parameter real w10308=-0.09896335005760193;
+parameter real w10309=1.6516741514205933;
+parameter real w103010=0.526978075504303;
+parameter real w103011=-3.5893993377685547;
+parameter real w103012=0.23179040849208832;
+parameter real w103013=0.5150756239891052;
+parameter real w103014=0.22570756077766418;
+parameter real w103015=4.233832359313965;
+
+parameter real b101=-1.8390941619873047;
+parameter real b102=2.0487263202667236;
+parameter real b103=-4.772266387939453;
+parameter real b104=2.058866024017334;
+parameter real b105=-1.118607997894287;
+parameter real b106=-1.825040578842163;
+parameter real b107=0.37372133135795593;
+parameter real b108=1.7343111038208008;
+parameter real b109=-2.545733690261841;
+parameter real b1010=-3.6001698970794678;
+parameter real b1011=-2.8576552867889404;
+parameter real b1012=1.3149853944778442;
+parameter real b1013=0.6692972183227539;
+parameter real b1014=-1.0200707912445068;
+parameter real b1015=-2.063157796859741;
+
+//****** Weights and biases of the second hidden layer  15*8 ******//
+parameter real w20101=-3.510828733444214;
+parameter real w20102=3.4008421897888184;
+parameter real w20103=-0.2645513713359833;
+parameter real w20104=0.2590903639793396;
+parameter real w20105=-0.8090404868125916;
+parameter real w20106=-0.7083752155303955;
+parameter real w20107=13.7844820022583;
+parameter real w20108=1.6473122835159302;
+
+parameter real w20201=2.5082621574401855;
+parameter real w20202=-2.2466342449188232;
+parameter real w20203=1.2058566808700562;
+parameter real w20204=0.10159081965684891;
+parameter real w20205=-0.05189422145485878;
+parameter real w20206=0.8955481648445129;
+parameter real w20207=-4.219690799713135;
+parameter real w20208=-2.224613904953003;
+
+parameter real w20301=0.10295525938272476;
+parameter real w20302=-1.9649969339370728;
+parameter real w20303=5.053084373474121;
+parameter real w20304=0.5094666481018066;
+parameter real w20305=-0.7627595663070679;
+parameter real w20306=-0.09774612635374069;
+parameter real w20307=0.06333565711975098;
+parameter real w20308=-1.5448005199432373;
+
+parameter real w20401=1.9071077108383179;
+parameter real w20402=-0.5840896368026733;
+parameter real w20403=-1.1396119594573975;
+parameter real w20404=-0.10122781991958618;
+parameter real w20405=0.14395445585250854;
+parameter real w20406=-0.1754637360572815;
+parameter real w20407=-2.190325975418091;
+parameter real w20408=-1.1914328336715698;
+
+parameter real w20501=-0.896630585193634;
+parameter real w20502=0.057179443538188934;
+parameter real w20503=0.13449648022651672;
+parameter real w20504=0.1572606861591339;
+parameter real w20505=-0.5378974080085754;
+parameter real w20506=-0.43977978825569153;
+parameter real w20507=5.762277126312256;
+parameter real w20508=2.9779889583587646;
+
+parameter real w20601=-4.913434982299805;
+parameter real w20602=4.074643611907959;
+parameter real w20603=0.033212143927812576;
+parameter real w20604=0.3414863348007202;
+parameter real w20605=-0.7316132187843323;
+parameter real w20606=0.17269912362098694;
+parameter real w20607=4.717433452606201;
+parameter real w20608=6.309535980224609;
+
+parameter real w20701=0.15151655673980713;
+parameter real w20702=-1.2012419700622559;
+parameter real w20703=2.092411994934082;
+parameter real w20704=0.36425909399986267;
+parameter real w20705=-0.4885038733482361;
+parameter real w20706=-0.3243024945259094;
+parameter real w20707=-0.29530197381973267;
+parameter real w20708=-0.9227249622344971;
+
+parameter real w20801=1.103946328163147;
+parameter real w20802=0.7373330593109131;
+parameter real w20803=-2.629331350326538;
+parameter real w20804=-0.13512973487377167;
+parameter real w20805=0.29891669750213623;
+parameter real w20806=0.29390284419059753;
+parameter real w20807=-1.591962456703186;
+parameter real w20808=-1.3336933851242065;
+
+parameter real w20901=1.1590921878814697;
+parameter real w20902=-0.4406750500202179;
+parameter real w20903=-1.0614149570465088;
+parameter real w20904=-0.14913836121559143;
+parameter real w20905=0.7515090703964233;
+parameter real w20906=-0.5838504433631897;
+parameter real w20907=0.19057618081569672;
+parameter real w20908=0.028481094166636467;
+
+parameter real w201001=0.5651783347129822;
+parameter real w201002=0.01613818109035492;
+parameter real w201003=-1.6103521585464478;
+parameter real w201004=-0.9976608753204346;
+parameter real w201005=0.8342353105545044;
+parameter real w201006=-0.7015126943588257;
+parameter real w201007=0.04543657973408699;
+parameter real w201008=-0.51763916015625;
+
+parameter real w201101=-1.4026074409484863;
+parameter real w201102=-1.4812067747116089;
+parameter real w201103=1.3529409170150757;
+parameter real w201104=0.4762440621852875;
+parameter real w201105=-0.6162409782409668;
+parameter real w201106=-1.0572624206542969;
+parameter real w201107=1.778072714805603;
+parameter real w201108=4.225380897521973;
+
+parameter real w201201=4.7707414627075195;
+parameter real w201202=0.42213574051856995;
+parameter real w201203=-0.7781150937080383;
+parameter real w201204=-0.38179811835289;
+parameter real w201205=0.4016682803630829;
+parameter real w201206=-0.1543457806110382;
+parameter real w201207=-6.49402379989624;
+parameter real w201208=-1.0413354635238647;
+
+parameter real w201301=0.19066883623600006;
+parameter real w201302=0.2637968063354492;
+parameter real w201303=-1.9478827714920044;
+parameter real w201304=-0.03034520335495472;
+parameter real w201305=0.055076271295547485;
+parameter real w201306=0.2161523997783661;
+parameter real w201307=-0.5975380539894104;
+parameter real w201308=-0.12437532097101212;
+
+parameter real w201401=-0.5871655941009521;
+parameter real w201402=0.556464672088623;
+parameter real w201403=1.2373121976852417;
+parameter real w201404=0.1810079962015152;
+parameter real w201405=-0.3665789067745209;
+parameter real w201406=-0.21247506141662598;
+parameter real w201407=3.352546453475952;
+parameter real w201408=2.4818122386932373;
+
+parameter real w201501=-2.325986862182617;
+parameter real w201502=0.8814366459846497;
+parameter real w201503=-0.2522542178630829;
+parameter real w201504=-0.2058071792125702;
+parameter real w201505=-0.035184118896722794;
+parameter real w201506=0.522575318813324;
+parameter real w201507=-1.72745680809021;
+parameter real w201508=5.262840747833252;
+
+parameter real b201=-0.6386770009994507;
+parameter real b202=-0.3535481095314026;
+parameter real b203=1.5079765319824219;
+parameter real b204=0.9978563785552979;
+parameter real b205=-0.6601287722587585;
+parameter real b206=0.5900588035583496;
+parameter real b207=-0.6169233322143555;
+parameter real b208=0.4954596757888794;
+
+
+
+//****** Weights and biases of output layer******//
+parameter real w30101=0.5769448280334473;
+parameter real w30201=-0.9296271800994873;
+parameter real w30301=-1.5924144983291626;
+parameter real w30401=-2.6968910694122314;
+parameter real w30501=1.4930613040924072;
+parameter real w30601=-2.395768642425537;
+parameter real w30701=-0.8555448055267334;
+parameter real w30801=-1.1876429319381714;
+
+
+parameter real b301 = -0.63134587;
+
+//****** Intermediate parameters & neural network structure:3-15-8-1******//
+real vgs,vds,wl;
+
+real n101_in, n102_in, n103_in, n104_in, n105_in, n106_in, n107_in, n108_in,n109_in, n1010_in,n1011_in, n1012_in, n1013_in, n1014_in, n1015_in;
+real n101_out, n102_out, n103_out, n104_out, n105_out, n106_out, n107_out, n108_out,n109_out, n1010_out,n1011_out, n1012_out, n1013_out, n1014_out, n1015_out;
+
+real n201_in, n202_in, n203_in, n204_in, n205_in, n206_in, n207_in, n208_in;
+real n201_out, n202_out, n203_out, n204_out, n205_out, n206_out, n207_out, n208_out;
+
+real n301;
+
+real ids;
+
+real idc, isc, igc;
+
+analog
+ begin
+   //****** standardScaler for inputs******//
+   if(V(drain)>=V(source)) begin
+      vgs = (V(gate, source) - vgs_mean) / vgs_std;
+      vds = (V(drain, source)- vds_mean) / vds_std;
+      wl=1.7204155567764;
+   end else begin
+      vgs = (V(gate, drain) - vgs_mean) / vgs_std;
+      vds = (V(source, drain)- vds_mean) / vds_std;
+      wl=1.7204155567764;
+   end
+   //****** input and output of the first hidden layer neuron in analog******//
+   n101_in = vgs * w10101 + vds * w10201 +wl*w10301+ b101;
+   n102_in = vgs * w10102 + vds * w10202 +wl*w10302+ b102;
+   n103_in = vgs * w10103 + vds * w10203 + wl*w10303+b103;
+   n104_in = vgs * w10104 + vds * w10204 +wl*w10304+b104;
+   n105_in = vgs * w10105 + vds * w10205 +wl*w10305+b105;
+   n106_in = vgs * w10106 + vds * w10206 +wl*w10306+b106;
+   n107_in = vgs * w10107 + vds * w10207 +wl*w10307+b107;
+   n108_in = vgs * w10108 + vds * w10208 +wl*w10308+b108;
+   n109_in = vgs * w10109 + vds * w10209 + wl*w10309+b109;
+   n1010_in = vgs * w101010 + vds * w102010 +wl*w103010+b1010;
+   n1011_in = vgs * w101011 + vds * w102011 +wl*w103011+b1011;
+   n1012_in = vgs * w101012 + vds * w102012 +wl*w103012+b1012;
+   n1013_in = vgs * w101013 + vds * w102013 +wl*w103013+  b1013;
+   n1014_in = vgs * w101014 + vds * w102014 +wl*w103014+  b1014;
+   n1015_in = vgs * w101015 + vds * w102015 +wl*w103015+  b1015;
+   
+   
+   n101_out = tanh(n101_in);
+   n102_out = tanh(n102_in);
+   n103_out = tanh(n103_in);
+   n104_out = tanh(n104_in);
+   n105_out = tanh(n105_in);
+   n106_out = tanh(n106_in);
+   n107_out = tanh(n107_in);
+   n108_out = tanh(n108_in);
+   n109_out = tanh(n109_in);
+   n1010_out = tanh(n1010_in);
+   n1011_out = tanh(n1011_in);
+   n1012_out = tanh(n1012_in);
+   n1013_out = tanh(n1013_in);
+   n1014_out = tanh(n1014_in);
+   n1015_out = tanh(n1015_in);
+   
+   //****** input and output of the second hidden layer neuron in analog******//
+   n201_in =n101_out * w20101 + n102_out * w20201 + n103_out * w20301 + n104_out * w20401 + n105_out * w20501 + n106_out * w20601 + n107_out * w20701 + n108_out * w20801 + n109_out * w20901 + n1010_out * w201001 + n1011_out * w201101 + n1012_out * w201201 + n1013_out * w201301 + n1014_out * w201401 + n1015_out * w201501 +  b201;
+   n202_in =n101_out * w20102 + n102_out * w20202 + n103_out * w20302 + n104_out * w20402 + n105_out * w20502 + n106_out * w20602 + n107_out * w20702 + n108_out * w20802 +n109_out * w20902 + n1010_out * w201002+n1011_out * w201102 + n1012_out * w201202 + n1013_out * w201302 + n1014_out * w201402 + n1015_out * w201502 + b202   ;
+   n203_in =n101_out * w20103 + n102_out * w20203 + n103_out * w20303 + n104_out * w20403 + n105_out * w20503 + n106_out * w20603 + n107_out * w20703 + n108_out * w20803 +n109_out * w20903 + n1010_out * w201003 +n1011_out * w201103 + n1012_out * w201203 + n1013_out * w201303 + n1014_out * w201403 + n1015_out * w201503+ b203;
+   n204_in =n101_out * w20104 + n102_out * w20204 + n103_out * w20304 + n104_out * w20404 + n105_out * w20504 + n106_out * w20604 + n107_out * w20704 + n108_out * w20804 +n109_out * w20904 + n1010_out * w201004+n1011_out * w201104 + n1012_out * w201204 + n1013_out * w201304 + n1014_out * w201404 + n1015_out * w201504+ b204;
+   n205_in =n101_out * w20105 + n102_out * w20205 + n103_out * w20305 + n104_out * w20405 + n105_out * w20505 + n106_out * w20605 + n107_out * w20705 + n108_out * w20805 +n109_out * w20905 + n1010_out * w201005+n1011_out * w201105 + n1012_out * w201205 + n1013_out * w201305 + n1014_out * w201405 + n1015_out * w201505+ b205;
+   n206_in =n101_out * w20106 + n102_out * w20206 + n103_out * w20306 + n104_out * w20406 + n105_out * w20506 + n106_out * w20606 + n107_out * w20706 + n108_out * w20806 +n109_out * w20906 + n1010_out * w201006+n1011_out * w201106 + n1012_out * w201206 + n1013_out * w201306 + n1014_out * w201406 + n1015_out * w201506 + b206;
+   n207_in =n101_out * w20107 + n102_out * w20207 + n103_out * w20307 + n104_out * w20407 + n105_out * w20507 + n106_out * w20607 + n107_out * w20707 + n108_out * w20807 +n109_out * w20907 + n1010_out * w201007+n1011_out * w201107 + n1012_out * w201207 + n1013_out * w201307 + n1014_out * w201407 + n1015_out * w201507 + b207;
+   n208_in =n101_out * w20108 + n102_out * w20208 + n103_out * w20308 + n104_out * w20408 + n105_out * w20508 + n106_out * w20608 + n107_out * w20708 + n108_out * w20808  +n109_out * w20908 + n1010_out * w201008+n1011_out * w201108 + n1012_out * w201208 + n1013_out * w201308 + n1014_out * w201408 + n1015_out * w201508+ b208;
+
+   n201_out = tanh(n201_in);
+   n202_out = tanh(n202_in);
+   n203_out = tanh(n203_in);
+   n204_out = tanh(n204_in);
+   n205_out = tanh(n205_in);
+   n206_out = tanh(n206_in);
+   n207_out = tanh(n207_in);
+   n208_out = tanh(n208_in);
+   
+   //****** the output of neural network in analog******//
+   n301 =n201_out * w30101 + n202_out * w30201 + n203_out * w30301 + n204_out * w30401 + n205_out * w30501 + n206_out * w30601 + n207_out * w30701 + n208_out * w30801 + b301;
+  
+   ids = exp(n301)*0.000001;
+
+   idc = -ddt(0.000000000005 * V(gate,drain));
+   isc = -ddt(0.000000001 * V(gate,source));
+   igc = ddt(0.0000000000005 * V(gate,drain)) + ddt(0.000000001* V(gate,source));
+   if(V(drain)>=V(source)) begin
+      I(drain) <+ ids + idc;
+      I(source) <+ -ids + isc;
+      I(gate) <+ igc;
+   end else begin
+      I(drain) <+ -ids + idc;
+      I(source) <+ ids + isc;
+      I(gate) <+ igc;
+   end
+ end
+
+endmodule

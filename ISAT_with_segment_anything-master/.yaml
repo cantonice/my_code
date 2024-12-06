@@ -1,0 +1,11 @@
+label:
+- color: '#000000'
+  name: __background__
+- color: '#aa007f'
+  name: spot
+- color: '#00557f'
+  name: etching solution contamination
+- color: '#00aaff'
+  name: hole deformation
+- color: '#550000'
+  name: pit

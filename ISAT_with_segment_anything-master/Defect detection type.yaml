@@ -1,0 +1,13 @@
+label:
+- color: '#000000'
+  name: __background__
+- color: '#00557f'
+  name: etching solution contamination
+- color: '#00aaff'
+  name: hole deformation
+- color: '#aa007f'
+  name: hard spots
+- color: '#ff5500'
+  name: black shading
+- color: '#ff55ff'
+  name: scratch

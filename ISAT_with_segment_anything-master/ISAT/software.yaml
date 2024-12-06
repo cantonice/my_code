@@ -1,0 +1,23 @@
+label:
+- color: '#000000'
+  name: __background__
+- color: '#00557f'
+  name: etching solution contamination
+- color: '#00aaff'
+  name: hole deformation
+- color: '#aa007f'
+  name: hard spots
+- color: '#ff5500'
+  name: black shading
+- color: '#ff55ff'
+  name: scratch
+software:
+  auto_save: false
+  contour_mode: external
+  language: zh
+  mask_alpha: 0.6
+  show_edge: true
+  show_prompt: true
+  use_bfloat16: false
+  use_polydp: true
+  vertex_size: 1
